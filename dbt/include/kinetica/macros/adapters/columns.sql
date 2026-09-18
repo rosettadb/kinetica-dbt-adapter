@@ -11,9 +11,9 @@
 
 
 {#
-  Kinetica ALTER TABLE grammar:
-    ALTER TABLE t ADD <col> <definition>
-    ALTER TABLE t DROP <col>
+  Kinetica ALTER TABLE grammar (verified on 7.2.3):
+    ALTER TABLE t ADD [COLUMN] <col> <definition>
+    ALTER TABLE t DROP COLUMN <col>
     ALTER TABLE t ALTER COLUMN <col> <definition>
     ALTER TABLE t RENAME COLUMN <col> TO <new>
   One action per statement; the cursor splits on ';'.
@@ -37,7 +37,7 @@
 
   {% for column in remove_columns %}
     {% call statement('drop_column') %}
-      alter table {{ relation.render() }} drop {{ column.quoted }}
+      alter table {{ relation.render() }} drop column {{ column.quoted }}
     {% endcall %}
   {% endfor %}
 {% endmacro %}

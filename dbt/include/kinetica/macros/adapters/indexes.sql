@@ -4,7 +4,8 @@
       - columns: [col_a]
       - columns: [geo_col]
         type: geospatial
-  Renders: CREATE [<type>] INDEX ON <table> (<columns>)
+  Renders (verified on Kinetica 7.2.3):
+    ALTER TABLE <table> ADD [<type>] INDEX (<columns>)
 #}
 {% macro kinetica__get_create_index_sql(relation, index_dict) -%}
   {%- set columns = index_dict.get('columns', []) -%}
@@ -14,5 +15,5 @@
   {%- endif -%}
   {%- set quoted = [] -%}
   {%- for col in columns -%}{%- do quoted.append(adapter.quote(col)) -%}{%- endfor -%}
-  create {% if index_type %}{{ index_type }} {% endif %}index on {{ relation.render() }} ({{ quoted | join(', ') }})
+  alter table {{ relation.render() }} add {% if index_type %}{{ index_type }} {% endif %}index ({{ quoted | join(', ') }})
 {%- endmacro %}

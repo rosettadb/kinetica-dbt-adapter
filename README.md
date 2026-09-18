@@ -14,12 +14,17 @@ It talks to Kinetica through the official `gpudb` Python client (`/execute/sql`,
 
 ## Status
 
-Alpha. The Python layer and the macros are covered by unit tests and by an
-end-to-end "dry run" that pushes seeds, models, tests, snapshots and
-`docs generate` through the real dbt engine against an in-memory fake server.
-The generated SQL has **not yet been executed against a live Kinetica cluster**;
-see [Verifying against a real server](#verifying-against-a-real-server) before
-relying on it.
+Alpha, verified against **Kinetica 7.2.3**:
+
+* the official dbt adapter test-suite (`dbt-tests-adapter` basic suite: simple
+  materializations, incremental, ephemeral, generic and singular tests,
+  timestamp and check snapshots, adapter methods, connection validation) passes;
+* the `examples/demo` project runs end to end (`seed`, `run` twice, `test`,
+  `snapshot` twice, `docs generate`);
+* the Python layer and macros are additionally covered by unit tests and by a
+  dbt "dry run" against an in-memory fake server.
+
+Older Kinetica versions (7.1) have not been tested.
 
 ## Installation
 
@@ -131,28 +136,20 @@ where order_date >= (select max(order_date) from {{ this }})
 * Source freshness via table metadata (`loaded_at_field` queries work).
 * Python models.
 
-## Verifying against a real server
+## Kinetica syntax notes
 
-Several statements rely on Kinetica syntax that could only be checked against
-documentation, not a running cluster. When you first point this adapter at a
-real Kinetica (7.1+ recommended), watch these in particular and open an issue
-or adjust the macro if one fails:
+Things learned while validating against Kinetica 7.2.3 (each lives in a single
+dispatched macro under `dbt/include/kinetica/macros`, so a project-level
+`{% macro kinetica__... %}` override is enough to adapt it):
 
-| Statement / function                                         | Macro                                            |
-| ------------------------------------------------------------ | ------------------------------------------------ |
-| `CREATE OR REPLACE [REPLICATED] [TEMP] TABLE ... AS (...)`    | `kinetica__create_table_as`                      |
-| `USING TABLE PROPERTIES (...)` placed before `AS`             | `kinetica__table_options_clause`                 |
-| `CREATE OR REPLACE VIEW`, `CREATE OR REPLACE MATERIALIZED VIEW ... REFRESH ...` | `relations/view`, `relations/materialized_view` |
-| `REFRESH MATERIALIZED VIEW <name>`                            | `kinetica__refresh_materialized_view`            |
-| `ALTER TABLE t ADD <col> <type>` / `DROP <col>` / `ALTER COLUMN` | `macros/adapters/columns.sql`                  |
-| `UPDATE t AS a SET ... FROM s AS b WHERE ...`                  | `kinetica__snapshot_merge_sql`                   |
-| `MD5()`, `STRING_AGG()`, `SPLIT()`, `TIMESTAMPADD/DIFF`, `DATE_TRUNC(UNIT, x)` | `macros/utils/utils.sql`             |
-| `GRANT <priv> ON TABLE <rel> TO <grantee>`                    | `macros/adapters/grants.sql`                     |
-| Leading `/* {...} */` query-comment blocks                    | disable with `query-comment: null` in `dbt_project.yml` if rejected |
-
-Every one of these lives in a single dispatched macro under
-`dbt/include/kinetica/macros`, so a project-level override
-(`{% macro kinetica__... %}` in your own `macros/`) is enough to patch it.
+| Behaviour                                                     | Macro                                  |
+| ------------------------------------------------------------- | -------------------------------------- |
+| In `CREATE TABLE ... AS`, `PARTITION BY` / `TIER STRATEGY` / `USING TABLE PROPERTIES` come **after** the select | `kinetica__table_options_clause` |
+| Indexes are created with `ALTER TABLE t ADD [type] INDEX (col)` | `kinetica__get_create_index_sql`     |
+| `ALTER TABLE t ADD col type` but `DROP COLUMN col`             | `macros/adapters/columns.sql`          |
+| `UPDATE t SET ... FROM t, s AS alias WHERE ...` (target unaliased and repeated in `FROM`) | `kinetica__snapshot_merge_sql` |
+| No `MD5()`; `SHA256()` is used for `hash()` and `dbt_scd_id`   | `kinetica__hash`, `kinetica__snapshot_hash_arguments` |
+| Every DDL/DML answer carries a one-row `dummy` result set; the cursor ignores it for non-queries | `client.py` |
 
 Run the official adapter test-suite against your cluster:
 

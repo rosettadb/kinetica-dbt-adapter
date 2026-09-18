@@ -256,7 +256,9 @@ class KineticaCursor:
         self._statement = statement
         self.statement_kind = first_keyword(statement).upper()
 
-        if result.columns:
+        # Kinetica answers DDL/DML with a one-row `dummy` result set; only treat
+        # the response as a result set when the statement is actually a query.
+        if result.columns and looks_like_query(statement):
             self.description = [
                 (name, dtype, None, None, None, None, None) for name, dtype in result.columns
             ]

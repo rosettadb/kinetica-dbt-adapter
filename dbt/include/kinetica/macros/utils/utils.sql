@@ -12,8 +12,9 @@
 {%- endmacro %}
 
 
+{#- Kinetica has no MD5(); SHA256() is available and returns hex text. -#}
 {% macro kinetica__hash(field) -%}
-    md5(cast({{ field }} as varchar))
+    sha256(cast({{ field }} as varchar))
 {%- endmacro %}
 
 

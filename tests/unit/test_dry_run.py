@@ -335,7 +335,7 @@ class TestDryRun:
         assert "using table properties" in options_sql[0]
         assert "chunk size = 100000" in options_sql[0]
         assert "ttl = 30" in options_sql[0]
-        assert _statements_matching(fake_server, r'create index on "%s"."my_options" \("id"\)' % schema)
+        assert _statements_matching(fake_server, r'alter table "%s"."my_options" add index \("id"\)' % schema)
         assert _statements_matching(fake_server, r'grant select on table "%s"."my_options" to analyst' % schema)
 
         # first incremental run builds the table directly
@@ -390,7 +390,7 @@ class TestDryRun:
         results = run_dbt(["snapshot"])
         assert len(results) == 2 and all(r.status == "success" for r in results)
         first_snapshot = _statements_matching(fake_server, r'create or replace table "%s"."snap_ts"' % schema)
-        assert first_snapshot and "md5(" in first_snapshot[0]
+        assert first_snapshot and "sha256(" in first_snapshot[0]
         assert "concat(coalesce(cast(id as varchar), ''), concat('|', coalesce(cast(updated_at as varchar), '')))" in first_snapshot[0]
 
         fake_server.statements.clear()
@@ -398,8 +398,9 @@ class TestDryRun:
         assert all(r.status == "success" for r in results)
         staging = _statements_matching(fake_server, r'create or replace temp table "%s"."snap_ts__dbt_tmp"' % schema)
         assert staging
-        update = _statements_matching(fake_server, r'update "%s"."snap_ts" as DBT_INTERNAL_DEST' % schema)
-        assert update and "from" in update[0].lower() and "DBT_INTERNAL_SOURCE" in update[0]
+        update = _statements_matching(fake_server, r'update "%s"."snap_ts"\s+set dbt_valid_to' % schema)
+        assert update and 'from "%s"."snap_ts", "%s"."snap_ts__dbt_tmp" as DBT_INTERNAL_SOURCE' % (schema, schema) in update[0]
+        assert '"snap_ts".dbt_scd_id' in update[0]
         assert _statements_matching(fake_server, r'insert into "%s"."snap_ts" \(' % schema)
         assert _statements_matching(fake_server, r'drop table if exists "%s"."snap_ts__dbt_tmp"' % schema)
 

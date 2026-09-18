@@ -1,7 +1,12 @@
 {#
+  Verified on Kinetica 7.2.3:
+
   CREATE [OR REPLACE] [REPLICATED] [TEMP] TABLE <schema>.<table>
-      [PARTITION BY ...] [TIER STRATEGY (...)] [USING TABLE PROPERTIES (...)]
   AS ( <select> )
+      [PARTITION BY ...] [TIER STRATEGY (...)] [USING TABLE PROPERTIES (...)]
+
+  (for CREATE TABLE ... AS the option clauses come *after* the select; with an
+  explicit column list they come after the column definitions)
 
   Temp tables keep their schema qualifier: Kinetica temp tables are ordinary
   tables with a TTL, and dbt references them fully qualified later on.
@@ -23,10 +28,10 @@
     {{ get_select_subquery(sql) }}
   {%- else %}
     create or replace {{ kinetica__table_kind(temporary) }} {{ relation.render() }}
-    {{ kinetica__table_options_clause() }}
     as (
       {{ sql }}
     )
+    {{ kinetica__table_options_clause() }}
   {%- endif %}
 {%- endmacro %}
 
