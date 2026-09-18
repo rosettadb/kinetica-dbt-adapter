@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Agent",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Get-Content *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(.\\.venv\\Scripts\\python.exe *)",
+      "PowerShell(.\\.venv\\Scripts\\pip.exe *)",
+      "PowerShell(.\\.venv\\Scripts\\dbt.exe *)",
+      "PowerShell(.\\.venv\\Scripts\\pytest.exe *)"
+    ]
+  }
+}

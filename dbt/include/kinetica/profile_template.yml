@@ -1,0 +1,17 @@
+fixed:
+  type: kinetica
+prompts:
+  host:
+    hint: "Kinetica URL, e.g. http://localhost:9191"
+  user:
+    hint: "Kinetica user name"
+  password:
+    hint: "Kinetica password"
+    hide_input: true
+  schema:
+    hint: "Default schema for dbt models"
+    default: ki_home
+  threads:
+    hint: "1 or more"
+    type: int
+    default: 4

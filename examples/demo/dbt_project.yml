@@ -1,0 +1,20 @@
+name: kinetica_demo
+version: "1.0.0"
+config-version: 2
+
+profile: kinetica_demo
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  kinetica_demo:
+    +materialized: table
+    staging:
+      +materialized: view

@@ -1,0 +1,4 @@
+id,first_name,last_name,signed_up_at,is_active
+1,Ada,Lovelace,2024-01-05 10:15:00,true
+2,Grace,Hopper,2024-02-11 08:30:00,true
+3,Linus,Torvalds,2024-03-20 17:45:00,false

@@ -1,0 +1,10 @@
+kinetica_demo:
+  target: dev
+  outputs:
+    dev:
+      type: kinetica
+      host: "{{ env_var('KINETICA_HOST', 'http://localhost:9191') }}"
+      user: "{{ env_var('KINETICA_USER', 'admin') }}"
+      password: "{{ env_var('KINETICA_PASSWORD', '') }}"
+      schema: "{{ env_var('KINETICA_SCHEMA', 'dbt_demo') }}"
+      threads: 2

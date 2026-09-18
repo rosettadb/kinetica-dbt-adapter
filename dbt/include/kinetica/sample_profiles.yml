@@ -1,0 +1,18 @@
+default:
+  outputs:
+    dev:
+      type: kinetica
+      host: http://localhost:9191
+      user: "{{ env_var('KINETICA_USER', 'admin') }}"
+      password: "{{ env_var('KINETICA_PASSWORD', '') }}"
+      schema: ki_home
+      threads: 4
+      # optional:
+      # timeout: 600                     # seconds per HTTP request
+      # skip_ssl_cert_verification: false
+      # disable_auto_discovery: true     # keep true when reaching Kinetica through docker/NAT
+      # retries: 1
+      # page_size: 10000                 # rows fetched per page for query results
+      # sql_options:                     # forwarded to every /execute/sql call
+      #   ttl: "120"
+  target: dev
