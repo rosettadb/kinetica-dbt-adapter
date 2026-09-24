@@ -10,7 +10,7 @@ It talks to Kinetica through the official `gpudb` Python client (`/execute/sql`,
 | dbt-core       | 1.12           |
 | dbt-adapters   | 1.24           |
 | gpudb (client) | 7.2            |
-| Python         | 3.9 - 3.12     |
+| Python         | 3.10 - 3.13    |
 
 ## Status
 
@@ -28,11 +28,22 @@ Older Kinetica versions (7.1) have not been tested.
 
 ## Installation
 
+From PyPI:
+
+```bash
+pip install dbt-kinetica
+```
+
+This pulls in `dbt-core`, `dbt-adapters` and the `gpudb` client. Check the
+plugin is registered with `dbt --version` (it lists `kinetica` under Plugins).
+
+From source (for development):
+
 ```bash
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate     # macOS / Linux
-pip install .                   # or: pip install -e ".[dev]"
+pip install -e ".[dev]"
 ```
 
 ## Profile
@@ -199,6 +210,12 @@ tests/functional/  dbt-tests-adapter suite (needs KINETICA_HOST)
 examples/demo/     sample dbt project
 ```
 
+## About
+
+Developed and maintained by [Rosetta Labs](https://rosettalabs.io/).
+Published as open source with Kinetica's approval. Changes are tracked in
+[CHANGELOG.md](https://github.com/rosettadb/kinetica-dbt-adapter/blob/main/CHANGELOG.md).
+
 ## License
 
-Apache-2.0
+[Apache-2.0](https://github.com/rosettadb/kinetica-dbt-adapter/blob/main/LICENSE)
